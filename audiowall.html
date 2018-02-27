@@ -1,0 +1,87 @@
+<html>
+  <head>
+    <title>Local Slideshow</title>
+    <meta name="author" content="François Fournier">
+    <style>
+      body { background-color: black; color: white; height: 100%; width: 100%; margin: auto; }
+      a { color: grey; }
+      #audio-container { width: 100%; height: 100%; }
+      body:hover div.settings { visibility: visible;}
+      div.settings { visibility: hidden; text-align: center; position: fixed; bottom: 10px; left: 10px; right: 10px; }
+      @media print { div.settings { display: none;} }
+      .spacer { margin: 0 10px;}
+      audio { object-fit: cover; height: 100%; width: 100%; margin: 0 auto;}
+      input[type=button], a.button { /*.stitched */
+        cursor: pointer;
+        position: relative;
+        margin: 5px;
+        background: #ff0030;
+        color: #fff;
+        font-weight: bold;
+        border: 2px dashed #fff;
+        border-radius: 10px;
+        box-shadow: 0 0 0 4px #ff0030, 2px 1px 6px 4px rgba(10, 10, 0, 0.5);
+        text-shadow: -1px -1px #aa3030;
+        font-weight: normal;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="audio-container"></div>
+    <div class="settings">
+      <input id="fileSelector" type="file" accept="audio/*"/ multiple>
+      <input type="button" id="startBtn" value="&#9655;">
+      <input type="button" id="pauseBtn" value="| |">
+      <input type="button" id="stopBtn" value="&#9723;">
+      <span class="spacer"></span>
+      <input type="button" id="muteBtn" value="&#128263;">
+      <input type="button" id="unmuteBtn" value="&#128264;">
+      <span class="spacer"></span>
+      <a class="button" href="https://fafournier.github.io/LocalAudioWall/" style="padding: 0 10px;" title="More info on LocalAudioWall"> i </a>
+    </div>
+    <script charset="utf-8">
+      var files = []; var index = 0; var timing = 5; var timer = null; var random = false; var players = [];
+      function addEvent(){
+        document.querySelector("input#fileSelector").onclick = function() { pauseAudios(); };
+        document.querySelector("input#fileSelector").onchange = function() {
+          if(this.files && this.files.length>0) files = this.files;
+          var container = document.getElementById('audio-container');
+          players = [];
+          while (container.lastChild) { container.removeChild(container.lastChild); } // clean up element
+          for(var i = 0; i < files.length; i++) { // add each audio in its player
+            var playerContainer = document.createElement('div');
+            var audioplayer = document.createElement('audio');
+            audioplayer.controls='controls';
+            audioplayer.onclick = function(e){ if(e.ctrlKey){this.muted = !this.muted;}else{ this.paused?this.play():this.pause();}};
+            audioplayer.muted = true;
+            audioplayer.src = URL.createObjectURL(files[i]);
+            playerContainer.appendChild(audioplayer);
+            container.appendChild(playerContainer);
+            players.push(audioplayer);
+          }
+        };
+        [ ["input#startBtn",startAudios],["input#pauseBtn",pauseAudios],["input#stopBtn",stopAudios],
+          ["input#muteBtn",muteAudios],["input#unmuteBtn",unmuteAudios]
+        ].forEach((event)=>{document.querySelector(event[0]).onclick = event[1];})
+      }
+      function startAudios(){ players.forEach((p)=>{ p.play(); }) }
+      function pauseAudios(){ players.forEach((p)=>{ p.pause(); }) }
+      function stopAudios(){ players.forEach((p)=>{ p.pause(); p.currentTime = 0; }) }
+      function muteAudios(){ players.forEach((p)=>{ p.muted = true; }) }
+      function unmuteAudios(){ players.forEach((p)=>{ p.muted = false; }) }
+      var tid = setInterval(function () { // wait for document to load
+        if (document.readyState !== 'complete') return;
+        clearInterval(tid);
+        addEvent();
+      }, 200);
+      document.onkeydown = function() {
+        switch (event.keyCode) {
+          case 9: /* Tab */ case 45: /* Insert */ case 34: /* Page Down */ case 36: /* Home */ case 13: /* Enter */
+            startAudios(); break;
+          case 33: /* Page Up */ case 8: /* Backspace */ case 35: /* End */ case 27: /* Escape */ case 46: /* Delete */ case 19: /* Pause-break */ case 32: /* Spacebar */
+            stopSlideShow(); break;
+          }
+        }
+    </script>
+  </body>
+</html>
