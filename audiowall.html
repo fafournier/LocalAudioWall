@@ -10,7 +10,7 @@
       div.settings { visibility: hidden; text-align: center; position: fixed; bottom: 10px; left: 10px; right: 10px; }
       @media print { div.settings { display: none;} }
       .spacer { margin: 0 10px;}
-      audio { object-fit: cover; height: 100%; width: 100%; margin: 0 auto;}
+      audio { object-fit: cover; width: 100%; margin: 0 auto;}
       input[type=button], a.button { /*.stitched */
         cursor: pointer;
         position: relative;
@@ -53,7 +53,6 @@
             var audioplayer = document.createElement('audio');
             audioplayer.controls='controls';
             audioplayer.onclick = function(e){ if(e.ctrlKey){this.muted = !this.muted;}else{ this.paused?this.play():this.pause();}};
-            audioplayer.muted = true;
             audioplayer.src = URL.createObjectURL(files[i]);
             playerContainer.appendChild(audioplayer);
             container.appendChild(playerContainer);
