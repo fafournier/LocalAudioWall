@@ -6,8 +6,7 @@
       body { background-color: black; color: white; height: 100%; width: 100%; margin: auto; }
       a { color: grey; }
       #audio-container { width: 100%; height: 100%; }
-      body:hover div.settings { visibility: visible;}
-      div.settings { visibility: hidden; text-align: center; position: fixed; bottom: 10px; left: 10px; right: 10px; }
+      div.settings { text-align: center; position: fixed; bottom: 10px; left: 10px; right: 10px; }
       @media print { div.settings { display: none;} }
       .spacer { margin: 0 10px;}
       audio { object-fit: cover; width: 100%; margin: 0 auto;}
@@ -37,38 +36,48 @@
       <input type="button" id="muteBtn" value="&#128263;">
       <input type="button" id="unmuteBtn" value="&#128264;">
       <span class="spacer"></span>
+      <input type="button" id="clearBtn" value="x">
+      <span class="spacer"></span>
       <a class="button" href="https://fafournier.github.io/LocalAudioWall/" style="padding: 0 10px;" title="More info on LocalAudioWall"> i </a>
     </div>
     <script charset="utf-8">
-      var files = []; var index = 0; var timing = 5; var timer = null; var random = false; var players = [];
+      var files = []; var players = [];
       function addEvent(){
         document.querySelector("input#fileSelector").onclick = function() { pauseAudios(); };
         document.querySelector("input#fileSelector").onchange = function() {
-          if(this.files && this.files.length>0) files = this.files;
-          var container = document.getElementById('audio-container');
-          players = [];
-          while (container.lastChild) { container.removeChild(container.lastChild); } // clean up element
-          for(var i = 0; i < files.length; i++) { // add each audio in its player
-            var playerContainer = document.createElement('div');
-            var audioplayer = document.createElement('audio');
-            audioplayer.controls='controls';
-            audioplayer.onclick = function(e){ if(e.ctrlKey){this.muted = !this.muted;}else{ this.paused?this.play():this.pause();}};
-            audioplayer.src = URL.createObjectURL(files[i]);
-            playerContainer.appendChild(audioplayer);
-            container.appendChild(playerContainer);
-            players.push(audioplayer);
+          if(this.files && this.files.length>0){
+            var newFiles = this.files;
+            var container = document.getElementById('audio-container');
+            for(var i = 0; i < newFiles.length; i++){ // add each audio in its player
+              var playerContainer = document.createElement('div');
+              var audioplayer = document.createElement('audio');
+              // var closePlayer = document.createElement('div');
+              audioplayer.controls='controls';
+              audioplayer.onclick = function(e){ console.log("clickAudio"); if(e.ctrlKey){this.muted = !this.muted;}else{ this.paused?this.play():this.pause();}};
+              audioplayer.src = URL.createObjectURL(newFiles[i]);
+              playerContainer.appendChild(audioplayer);
+              container.appendChild(playerContainer);
+              players.push(audioplayer);
+              files.push(newFiles);
+            }
           }
         };
         [ ["input#startBtn",startAudios],["input#pauseBtn",pauseAudios],["input#stopBtn",stopAudios],
-          ["input#muteBtn",muteAudios],["input#unmuteBtn",unmuteAudios]
-        ].forEach((event)=>{document.querySelector(event[0]).onclick = event[1];})
+          ["input#muteBtn",muteAudios],["input#unmuteBtn",unmuteAudios],["input#clearBtn",cleanupTracks]
+        ].forEach((event)=>{document.querySelector(event[0]).onclick = event[1];});
       }
       function startAudios(){ players.forEach((p)=>{ p.play(); }) }
       function pauseAudios(){ players.forEach((p)=>{ p.pause(); }) }
       function stopAudios(){ players.forEach((p)=>{ p.pause(); p.currentTime = 0; }) }
       function muteAudios(){ players.forEach((p)=>{ p.muted = true; }) }
       function unmuteAudios(){ players.forEach((p)=>{ p.muted = false; }) }
-      var tid = setInterval(function () { // wait for document to load
+      function cleanupTracks(){
+        console.log("cleanup");
+        players = []; files = [];
+        var container = document.getElementById('audio-container');
+        while (container.lastChild) { container.removeChild(container.lastChild); } // clean up element
+      }
+      var tid = setInterval(function(){ // wait for document to load
         if (document.readyState !== 'complete') return;
         clearInterval(tid);
         addEvent();
