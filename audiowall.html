@@ -3,7 +3,7 @@
     <title>Local Slideshow</title>
     <meta name="author" content="François Fournier">
     <style>
-      body { background-color: black; color: white; height: 100%; width: 100%; margin: auto; }
+      body { background-color: black; color: white; height: calc(100% - 150px); width: 100%; margin: auto; }
       a { color: grey; }
       #audio-container { width: 100%; height: 100%; }
       div.settings { text-align: center; position: fixed; bottom: 10px; left: 10px; right: 10px; }
@@ -72,10 +72,9 @@
       function muteAudios(){ players.forEach((p)=>{ p.muted = true; }) }
       function unmuteAudios(){ players.forEach((p)=>{ p.muted = false; }) }
       function cleanupTracks(){
-        console.log("cleanup");
         players = []; files = [];
         var container = document.getElementById('audio-container');
-        while (container.lastChild) { container.removeChild(container.lastChild); } // clean up element
+        while(container.lastChild){ container.removeChild(container.lastChild); } // clean up element
       }
       var tid = setInterval(function(){ // wait for document to load
         if (document.readyState !== 'complete') return;
